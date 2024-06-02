@@ -4,16 +4,15 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('tb_accounts', function (Blueprint $table) {
+        Schema::create('accounts', function (Blueprint $table): void {
             $table->id();
-            $table->decimal('value',15);
+            $table->decimal('value', 15);
         });
     }
 

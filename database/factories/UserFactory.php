@@ -2,15 +2,19 @@
 
 namespace Database\Factories;
 
+use App\Models\AccountModel;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ * @extends Factory<User>
  */
 class UserFactory extends Factory
 {
+    protected $model = User::class;
+
     /**
      * The current password being used by the factory.
      */
@@ -25,14 +29,14 @@ class UserFactory extends Factory
     {
         // Escolha aleatoriamente entre 1 (CNPJ) e 2 (CPF)
         $idTipoUsuario = $this->faker->randomElement([1, 2]);
-        $cpfCnpj = $idTipoUsuario === 1 ? $this->generateCpf() : $this->generateCnpj();
+        $cpfCnpj = 1 === $idTipoUsuario ? $this->generateCnpj() : $this->generateCpf();
 
         return [
             'name' => $this->faker->name(),
             'email' => $this->faker->unique()->safeEmail(),
             'email_verified_at' => now(),
             'cpf_cnpj' => $cpfCnpj,
-            'id_tipo_usuario' => $idTipoUsuario,
+            'type_id' => $idTipoUsuario,
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
         ];
@@ -46,6 +50,21 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    /**
+     * Configure the model factory.
+     *
+     * @return $this
+     */
+    public function configure(): static
+    {
+        return $this->afterCreating(function ($user): void {
+            // Cria uma conta para o usuário e vincula o ID da conta ao usuário
+            $account = AccountModel::factory()->create();
+            $user->account_id = $account->id;
+            $user->save();
+        });
     }
 
     /**

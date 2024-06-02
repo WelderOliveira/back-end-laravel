@@ -10,7 +10,7 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::create('tb_type', function (Blueprint $table) {
+        Schema::create('type', function (Blueprint $table): void {
             $table->id();
             $table->string('st_description');
         });
@@ -22,7 +22,7 @@ return new class () extends Migration {
             $table->timestamp('email_verified_at')->nullable();
             $table->string('cpf_cnpj')->unique();
             $table->foreignId('type_id')->nullable()->index();
-            $table->foreignId('account_id')->nullable()->index();
+            $table->foreignId('account_id')->nullable()->constrained();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
@@ -49,6 +49,7 @@ return new class () extends Migration {
      */
     public function down(): void
     {
+        Schema::dropIfExists('type');
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
