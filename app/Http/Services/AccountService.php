@@ -2,6 +2,8 @@
 
 namespace App\Http\Services;
 
+use App\Http\Constants\RequestConstant;
+use App\Http\Constants\TypeConstant;
 use App\Models\AccountModel;
 use App\Models\TransactionModel;
 use App\Models\User;
@@ -63,7 +65,7 @@ class AccountService
             throw new Exception('Conta não encontrada', Response::HTTP_NOT_FOUND);
         }
 
-        if (1 === $accountPayer->type_id) {
+        if (TypeConstant::CNPJ === $accountPayer->type_id) {
             throw new Exception('Lojistas não podem realizar transferências ', Response::HTTP_NOT_ACCEPTABLE);
         }
 
@@ -73,7 +75,13 @@ class AccountService
 
         $accountPayer->account->value = $accountPayer->account->value - $params['value'];
         $accountPayee->account->value = $accountPayee->account->value + $params['value'];
-        // TODO VERIFICAR SERVIÇO EXTERNO
+
+        $verifyAuthorization = RequestService::request(RequestConstant::AUTHORIZATION_REQUEST);
+
+        if (!$verifyAuthorization['data']['authorization']) {
+            throw new Exception('Transação não autorizada', Response::HTTP_UNAUTHORIZED);
+        }
+
         $this->saveAccount($accountPayee->account->toArray());
 
         $this->saveTransaction($params);
