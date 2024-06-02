@@ -23,10 +23,16 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        // Escolha aleatoriamente entre 1 (CNPJ) e 2 (CPF)
+        $idTipoUsuario = $this->faker->randomElement([1, 2]);
+        $cpfCnpj = $idTipoUsuario === 1 ? $this->generateCpf() : $this->generateCnpj();
+
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
+            'name' => $this->faker->name(),
+            'email' => $this->faker->unique()->safeEmail(),
             'email_verified_at' => now(),
+            'cpf_cnpj' => $cpfCnpj,
+            'id_tipo_usuario' => $idTipoUsuario,
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
         ];
@@ -40,5 +46,21 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    /**
+     * Generate a random CPF.
+     */
+    private function generateCpf(): string
+    {
+        return $this->faker->numerify('###########'); // 11 dígitos
+    }
+
+    /**
+     * Generate a random CNPJ.
+     */
+    private function generateCnpj(): string
+    {
+        return $this->faker->numerify('##############'); // 14 dígitos
     }
 }

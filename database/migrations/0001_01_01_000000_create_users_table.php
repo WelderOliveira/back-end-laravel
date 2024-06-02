@@ -10,11 +10,19 @@ return new class () extends Migration {
      */
     public function up(): void
     {
+        Schema::create('tb_type', function (Blueprint $table) {
+            $table->id();
+            $table->string('st_description');
+        });
+
         Schema::create('users', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
+            $table->string('cpf_cnpj')->unique();
+            $table->foreignId('type_id')->nullable()->index();
+            $table->foreignId('account_id')->nullable()->index();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
