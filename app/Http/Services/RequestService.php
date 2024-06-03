@@ -17,14 +17,11 @@ class RequestService
     public static function request(string $url, string $method = 'GET', int $timeoutSeconds = 30, array $data = []): mixed
     {
         if ('GET' === $method) {
-            $response = Http::timeout($timeoutSeconds)
-                ->{$method}(RequestConstant::URL_REQUEST . $url);
-        } else {
-            $response = Http::timeout($timeoutSeconds)
-                ->attach($data)
-                ->{$method}(RequestConstant::URL_REQUEST . $url);
+            return Http::timeout($timeoutSeconds)
+                ->{$method}(RequestConstant::URL_REQUEST . $url)->json();
         }
-
-        return $response->json();
+        return Http::timeout($timeoutSeconds)
+            ->attach($data)
+            ->{$method}(RequestConstant::URL_REQUEST . $url)->json;
     }
 }

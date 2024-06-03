@@ -127,7 +127,7 @@ class AccountService
      */
     private function verifyAccountByUser($user): ?AccountModel
     {
-        return $user->account()->first();
+        return $user->account()->firstOrFail();
     }
 
     /**
@@ -136,7 +136,10 @@ class AccountService
      */
     private function verifyExtractAccount($id): Collection|array
     {
-        return TransactionModel::with(['payee'])->where('payer_id', $id)->orderBy('created_at', 'desc')
-            ->get()->toArray();
+        return TransactionModel::with(['payee'])
+            ->where('payer_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->toArray();
     }
 }

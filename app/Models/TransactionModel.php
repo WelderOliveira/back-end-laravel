@@ -25,4 +25,12 @@ class TransactionModel extends Model
     {
         return $this->belongsTo(User::class, 'payee_id', 'id');
     }
+
+    /**
+     * @return BelongsTo
+     */
+    public function payer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'payer_id', 'id');
+    }
 }
