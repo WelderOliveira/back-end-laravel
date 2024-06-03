@@ -24,7 +24,6 @@ class RequestService
                 ->attach($data)
                 ->{$method}(RequestConstant::URL_REQUEST . $url);
         }
-        $response->throw();
 
         return $response->json();
     }

@@ -62,24 +62,24 @@ class AccountService
         $accountPayee = User::with(['account'])->findOrFail($params['payee']);
 
         if (empty($accountPayer) || empty($accountPayee)) {
-            throw new Exception('Conta não encontrada', Response::HTTP_NOT_FOUND);
+            throw new Exception('Conta não encontrada.', Response::HTTP_NOT_FOUND);
         }
 
         if (TypeConstant::CNPJ === $accountPayer->type_id) {
-            throw new Exception('Lojistas não podem realizar transferências ', Response::HTTP_NOT_ACCEPTABLE);
+            throw new Exception('Lojistas não podem realizar transferências.', Response::HTTP_NOT_ACCEPTABLE);
         }
 
-        if ($accountPayer->account->value < $params['value']) {
-            throw new Exception('Saldo insuficiente', Response::HTTP_UNAUTHORIZED);
+        if (!$this->checkSufficientBalance($accountPayer->account->value, $params['value'])) {
+            throw new Exception('Saldo insuficiente.', Response::HTTP_UNAUTHORIZED);
         }
 
-        $accountPayer->account->value = $accountPayer->account->value - $params['value'];
-        $accountPayee->account->value = $accountPayee->account->value + $params['value'];
+        $accountPayer->account->value -= $params['value'];
+        $accountPayee->account->value += $params['value'];
 
         $verifyAuthorization = RequestService::request(RequestConstant::AUTHORIZATION_REQUEST);
 
         if (!$verifyAuthorization['data']['authorization']) {
-            throw new Exception('Transação não autorizada', Response::HTTP_UNAUTHORIZED);
+            throw new Exception('Transação não autorizada!', Response::HTTP_UNAUTHORIZED);
         }
 
         $this->saveAccount($accountPayee->account->toArray());
@@ -87,6 +87,16 @@ class AccountService
         $this->saveTransaction($params);
         // TODO ENVIAR NOTIFICAÇÃO PARA FILA
         return $this->saveAccount($accountPayer->account->toArray())->only(['value']);
+    }
+
+    /**
+     * @param float $balance
+     * @param float $value
+     * @return bool
+     */
+    private function checkSufficientBalance(float $balance, float $value): bool
+    {
+        return $balance >= $value;
     }
 
     /**
