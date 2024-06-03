@@ -10,6 +10,14 @@ cd back-end-laravel
 - Crie `.env` com base no `.env.example`
 ```shell
 cp .env.example .env
+
+Configure os dados BD
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=desafio.back
+DB_USERNAME=desafio.back
+DB_PASSWORD=desafio.back
 ```
 ## Execução do projeto utilizando Docker
 
