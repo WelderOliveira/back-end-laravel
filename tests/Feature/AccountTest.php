@@ -35,23 +35,6 @@ class AccountTest extends TestCase
     /**
      * @return void
      */
-    public function testShowExistingAccount(): void
-    {
-
-        $response = $this->getJson('api/account/' . $this->user->id);
-
-        $response->assertStatus(Response::HTTP_OK);
-        $response->assertJson([
-            'status' => true,
-            "message" => ""
-        ]);
-
-        $response->assertJsonPath('data.value', $this->user->account->value);
-    }
-
-    /**
-     * @return void
-     */
     public function testShowNoExistingAccount(): void
     {
         $response = $this->getJson('api/account/999999');

@@ -1,0 +1,61 @@
+version: "3.7"
+
+services:
+    app:
+        entrypoint: /bin/sh './docker/scripts/entry.sh'
+        env_file:
+            - .env
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: unless-stopped
+        working_dir: /var/www/
+        ports:
+            - "9000:80"
+        volumes:
+            - ./:/var/www
+            - "./docker/php/custom.ini:/usr/local/etc/php/php.ini"
+        networks:
+            - laravel
+        depends_on:
+            - mysql
+        container_name: app
+
+    nginx:
+        image: nginx:alpine
+        restart: unless-stopped
+        ports:
+            - "8989:80"
+        volumes:
+            - ./:/var/www
+            - ./docker/nginx/:/etc/nginx/conf.d/
+        networks:
+            - laravel
+        container_name: app-nginx
+
+    mysql:
+        image: mysql:latest
+        container_name: mysql
+        restart: unless-stopped
+        command: --max_allowed_packet=18340161
+        environment:
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+            MYSQL_USER: ${DB_USERNAME}
+            SERVICE_TAGS: dev
+            SERVICE_NAME: mysql
+        volumes:
+            - "./docker/mysql:/docker-entrypoint-initdb.d"
+            - "mysql-data-volume:/var/lib/mysql"
+        ports:
+            - "3306:3306"
+        networks:
+            - laravel
+
+networks:
+    laravel:
+        driver: bridge
+
+volumes:
+    mysql-data-volume:

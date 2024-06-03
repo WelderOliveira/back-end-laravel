@@ -22,6 +22,6 @@ class RequestService
         }
         return Http::timeout($timeoutSeconds)
             ->attach($data)
-            ->{$method}(RequestConstant::URL_REQUEST . $url)->json;
+            ->{$method}(RequestConstant::URL_REQUEST . $url)->json();
     }
 }
