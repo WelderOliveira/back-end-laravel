@@ -37,7 +37,7 @@ class AccountTest extends TestCase
      */
     public function testShowNoExistingAccount(): void
     {
-        $response = $this->getJson('api/account/999999');
+        $response = $this->getJson('api/account/');
 
         $response->assertStatus(Response::HTTP_NOT_FOUND);
     }

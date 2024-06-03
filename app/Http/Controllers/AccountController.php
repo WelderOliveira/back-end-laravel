@@ -4,11 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\TransactionRequest;
 use App\Http\Services\AccountService;
-use App\Models\AccountModel;
-use App\Models\User;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class AccountController extends Controller
@@ -21,22 +19,16 @@ class AccountController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request): void
-    {
-
-    }
-
-    /**
-     * @param User $id
+     * @param int $id
      * @return JsonResponse
      */
-    public function show(User $id): JsonResponse
+    public function show(int $id): JsonResponse
     {
         try {
             $result = $this->accountService->getAccountByUser($id);
             return $this->tResponseOK($result);
+        } catch (ModelNotFoundException $e) {
+            return $this->tResponseFail('Usuário não encontrado', Response::HTTP_NOT_FOUND);
         } catch (Exception $exception) {
             return $this->tResponseFail($exception->getMessage(), $exception->getCode());
         }
@@ -57,24 +49,18 @@ class AccountController extends Controller
     }
 
     /**
-     * @param User $id
+     * @param int $id
      * @return JsonResponse
      */
-    public function extractAccount(User $id): JsonResponse
+    public function extractAccount(int $id): JsonResponse
     {
         try {
             $result = $this->accountService->getExtractAccount($id);
             return $this->tResponseOK($result, Response::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return $this->tResponseFail('Usuário não encontrado', Response::HTTP_NOT_FOUND);
         } catch (Exception $exception) {
             return $this->tResponseFail($exception->getMessage(), $exception->getCode());
         }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(AccountModel $accountModel): void
-    {
-
     }
 }

@@ -14,29 +14,36 @@ use Illuminate\Http\Response;
 class AccountService
 {
     /**
-     * @param User $user
+     * @param int $user
      * @return array
      * @throws Exception
      */
-    public function getAccountByUser(User $user): array
+    public function getAccountByUser(int $user): array
     {
-        $account = $this->verifyAccountByUser($user);
+        $user = $this->getUser($user);
 
-        if (empty($account)) {
-            throw new Exception('Conta não encontrada', Response::HTTP_NOT_FOUND);
+        if (empty($user)) {
+            throw new Exception('Usuário não encontrado.', Response::HTTP_NOT_FOUND);
         }
 
-        return $account->only(['value']);
+        return [
+            'name' => $user->name,
+            'email' => $user->email,
+            'type_account' => $user->type->st_description ?? null,
+            'value' => $user->account->value,
+        ];
     }
 
     /**
-     * @param User $user
+     * @param int $id
      * @return array
      * @throws Exception
      */
-    public function getExtractAccount(User $user): array
+    public function getExtractAccount(int $id): array
     {
-        if (empty($this->verifyAccountByUser($user))) {
+        $user = $this->getUser($id);
+
+        if (empty($user)) {
             throw new Exception('Conta não encontrada', Response::HTTP_NOT_FOUND);
         }
 
@@ -58,8 +65,8 @@ class AccountService
      */
     public function createTransaction(array $params): array
     {
-        $accountPayer = User::with(['account'])->findOrFail($params['payer']);
-        $accountPayee = User::with(['account'])->findOrFail($params['payee']);
+        $accountPayer = $this->getUser($params['payer']);
+        $accountPayee = $this->getUser($params['payee']);
 
         if (empty($accountPayer) || empty($accountPayee)) {
             throw new Exception('Conta não encontrada.', Response::HTTP_NOT_FOUND);
@@ -123,11 +130,11 @@ class AccountService
 
     /**
      * @param $user
-     * @return AccountModel|null
+     * @return User|null
      */
-    private function verifyAccountByUser($user): ?AccountModel
+    private function getUser($user): ?User
     {
-        return $user->account()->firstOrFail();
+        return User::findOrFail($user);
     }
 
     /**
