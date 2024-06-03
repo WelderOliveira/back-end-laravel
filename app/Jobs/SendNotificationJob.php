@@ -21,8 +21,6 @@ class SendNotificationJob implements ShouldQueue
 
     public $tries = 10;
 
-    public $retryAfter = 30;
-
     protected array $data;
 
     /**
@@ -56,15 +54,5 @@ class SendNotificationJob implements ShouldQueue
 
             throw $exception;
         }
-    }
-
-    /**
-     * Determine the time to wait before retrying the job.
-     *
-     * @return int
-     */
-    public function retryAfter(): int
-    {
-        return $this->retryAfter;
     }
 }
