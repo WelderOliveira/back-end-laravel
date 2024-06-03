@@ -4,6 +4,7 @@ namespace App\Http\Services;
 
 use App\Http\Constants\RequestConstant;
 use App\Http\Constants\TypeConstant;
+use App\Jobs\SendNotificationJob;
 use App\Models\AccountModel;
 use App\Models\TransactionModel;
 use App\Models\User;
@@ -92,8 +93,26 @@ class AccountService
         $this->saveAccount($accountPayee->account->toArray());
 
         $this->saveTransaction($params);
-        // TODO ENVIAR NOTIFICAÇÃO PARA FILA
-        return $this->saveAccount($accountPayer->account->toArray())->only(['value']);
+        $response = $this->saveAccount($accountPayer->account->toArray())->only(['value']);
+
+        $this->sendNotify($accountPayee->toArray());
+
+        return $response;
+    }
+
+    /**
+     * @param array $accountPayee
+     * @return void
+     */
+    public function sendNotify(array $accountPayee): void
+    {
+        $dataNotify = [
+            'name' => $accountPayee['name'],
+            'email' => $accountPayee['email'],
+            'balance' => $accountPayee['account']['value']
+        ];
+
+        SendNotificationJob::dispatch($dataNotify);
     }
 
     /**
@@ -138,10 +157,10 @@ class AccountService
     }
 
     /**
-     * @param $id
+     * @param int $id
      * @return Collection|array
      */
-    private function verifyExtractAccount($id): Collection|array
+    private function verifyExtractAccount(int $id): Collection|array
     {
         return TransactionModel::with(['payee'])
             ->where('payer_id', $id)

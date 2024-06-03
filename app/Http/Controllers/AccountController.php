@@ -56,7 +56,7 @@ class AccountController extends Controller
     {
         try {
             $result = $this->accountService->getExtractAccount($id);
-            return $this->tResponseOK($result, Response::HTTP_OK);
+            return $this->tResponseOK($result);
         } catch (ModelNotFoundException $e) {
             return $this->tResponseFail('Usuário não encontrado', Response::HTTP_NOT_FOUND);
         } catch (Exception $exception) {
