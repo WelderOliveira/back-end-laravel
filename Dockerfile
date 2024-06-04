@@ -25,11 +25,13 @@ RUN pecl install zip && docker-php-ext-enable zip
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Criar o diretório de trabalho e configurar
-RUN mkdir -p /var/wwwdocker
+RUN mkdir -p /var/www
 WORKDIR /var/www
 
-# Instalar o Node.js e o npm
-RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
-RUN apt-get install -y nodejs
+COPY ./docker/scripts/entry.sh /usr/local/bin/entry.sh
 
-ENTRYPOINT ["/bin/sh", "docker/scripts/entry.sh"]
+RUN chmod +x /usr/local/bin/entry.sh
+
+ENTRYPOINT ["/usr/local/bin/entry.sh"]
+
+CMD ["php-fpm"]

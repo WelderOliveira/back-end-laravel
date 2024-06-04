@@ -36,9 +36,11 @@ docker ps
 localhost:8989
 ```
 
-- Acessar ao container
+- Instalar dependências
 ```shell
-docker exec -it app /bin/bash
+- docker exec -it app /bin/bash
+
+- /bin/sh /usr/local/bin/entry.sh
 ```
 
 - Rodar testes

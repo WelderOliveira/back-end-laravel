@@ -28,8 +28,23 @@ class AccountTest extends TestCase
         $this->account = AccountModel::factory()->create();
 
         $this->accountService = $this->createMock(AccountService::class);
-        $this->app->instance(AccountService::class, $this->accountService);
+    }
 
+    /**
+     * @return void
+     */
+    public function testShowExistingAccount(): void
+    {
+
+        $response = $this->getJson('api/account/' . $this->user->id);
+
+        $response->assertStatus(Response::HTTP_OK);
+        $response->assertJson([
+            'status' => true,
+            "message" => ""
+        ]);
+
+        $response->assertJsonPath('data.value', $this->user->account->value);
     }
 
     /**
@@ -37,7 +52,7 @@ class AccountTest extends TestCase
      */
     public function testShowNoExistingAccount(): void
     {
-        $response = $this->getJson('api/account/');
+        $response = $this->getJson('api/account/99999');
 
         $response->assertStatus(Response::HTTP_NOT_FOUND);
     }
@@ -55,6 +70,8 @@ class AccountTest extends TestCase
             'payer' => $payer->id,
             'payee' => $payee->id
         ];
+
+        $this->app->instance(AccountService::class, $this->accountService);
 
         $this->accountService->method('createTransaction')
             ->willReturn(['value' => 450]);
@@ -83,6 +100,8 @@ class AccountTest extends TestCase
             'payee' => $payee->id
         ];
 
+        $this->app->instance(AccountService::class, $this->accountService);
+
         $this->accountService->method('createTransaction')
             ->willThrowException(new Exception('Saldo insuficiente.', Response::HTTP_UNAUTHORIZED));
 
@@ -108,6 +127,8 @@ class AccountTest extends TestCase
             'payer' => $payer->id,
             'payee' => $payee->id
         ];
+
+        $this->app->instance(AccountService::class, $this->accountService);
 
         $this->accountService->method('createTransaction')
             ->willThrowException(new Exception('Transação não autorizada!', Response::HTTP_UNAUTHORIZED));

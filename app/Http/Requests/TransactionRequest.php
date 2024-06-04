@@ -9,6 +9,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 class TransactionRequest extends FormRequest
 {
+    protected $stopOnFirstFailure = true;
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -25,9 +26,9 @@ class TransactionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'value' => ['required', 'numeric', 'min:0.01'],
-            'payer' => ['required', 'integer', 'exists:users,id'],
-            'payee' => ['required', 'integer', 'exists:users,id', 'different:payer'],
+            'value' => ['bail', 'required', 'numeric', 'min:0.01'],
+            'payer' => ['bail', 'required', 'integer', 'exists:users,id'],
+            'payee' => ['bail', 'required', 'integer', 'exists:users,id', 'different:payer'],
         ];
     }
 
